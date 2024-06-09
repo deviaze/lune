@@ -7,7 +7,7 @@ use rustyline::{error::ReadlineError, DefaultEditor};
 
 use lune::Runtime;
 
-const MESSAGE_WELCOME: &str = concat!("Lune v", env!("CARGO_PKG_VERSION"));
+const MESSAGE_WELCOME: &str = concat!("Lune v", env!("CARGO_PKG_VERSION"), "\n + process.exec(cmd: string)");
 const MESSAGE_INTERRUPT: &str = "Interrupt: ^C again to exit";
 
 enum PromptState {

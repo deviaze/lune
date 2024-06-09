@@ -7,6 +7,7 @@ use std::{
     },
     path::MAIN_SEPARATOR,
     process::Stdio,
+    ffi::CString,
 };
 
 use mlua::prelude::*;
@@ -15,6 +16,7 @@ use lune_utils::TableBuilder;
 use mlua_luau_scheduler::{Functions, LuaSpawnExt};
 use os_str_bytes::RawOsString;
 use tokio::io::AsyncWriteExt;
+use libc::system;
 
 mod options;
 mod tee_writer;
@@ -74,6 +76,7 @@ pub fn module(lua: &Lua) -> LuaResult<LuaTable> {
         .with_value("env", env_tab)?
         .with_value("exit", process_exit)?
         .with_async_function("spawn", process_spawn)?
+        .with_function("exec", process_exec)?
         .build_readonly()
 }
 
@@ -194,4 +197,15 @@ async fn spawn_command(
     }
 
     wait_for_child(child, stdout, stderr).await
+}
+
+fn process_exec(
+    _lua: &Lua,
+    user_command: String,
+) -> LuaResult<()> {
+    unsafe {
+        let cstring_command = CString::new(user_command).unwrap();
+        system(cstring_command.as_ptr() as *const u8);
+    }
+    Ok(())
 }
